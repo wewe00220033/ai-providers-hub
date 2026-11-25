@@ -1,0 +1,128 @@
+{
+  "models_full": [
+    "Claude Fable 5",
+    "Claude Fable 5.1",
+    "Claude Fable 5.2",
+    "Claude Opus 5.5",
+    "Claude Mythos 5",
+    "Claude Mythos 5.1",
+    "Claude Mythos 5.2",
+    "GPT-6 Astra",
+    "GPT-6.2 Astra"
+  ],
+  "model_families": {
+    "Claude Fable": {
+      "members": ["Claude Fable 5", "Claude Fable 5.1", "Claude Fable 5.2"],
+      "compact": "Fable 5 / 5.1 / 5.2"
+    },
+    "Claude Opus": {
+      "members": ["Claude Opus 5.5"],
+      "compact": "Opus 5.5"
+    },
+    "Claude Mythos": {
+      "members": ["Claude Mythos 5", "Claude Mythos 5.1", "Claude Mythos 5.2"],
+      "compact": "Mythos 5 / 5.1 / 5.2"
+    },
+    "GPT Astra": {
+      "members": ["GPT-6 Astra", "GPT-6.2 Astra"],
+      "compact": "Astra 6 / 6.2"
+    }
+  },
+  "model_short": {
+    "Claude Fable 5": "Fable 5",
+    "Claude Fable 5.1": "Fable 5.1",
+    "Claude Fable 5.2": "Fable 5.2",
+    "Claude Opus 5.5": "Opus 5.5",
+    "Claude Mythos 5": "Mythos 5",
+    "Claude Mythos 5.1": "Mythos 5.1",
+    "Claude Mythos 5.2": "Mythos 5.2",
+    "GPT-6 Astra": "Astra 6",
+    "GPT-6.2 Astra": "Astra 6.2"
+  },
+  "channels": ["Chat", "Browser", "API", "CLI", "IDE", "Desktop"],
+  "captcha_types": [
+    "none",
+    "turnstile",
+    "recaptcha_v2",
+    "recaptcha_v3",
+    "hcaptcha",
+    "arkose",
+    "geetest",
+    "image_captcha",
+    "unknown"
+  ],
+  "auth_methods": [
+    "email_password",
+    "email_otp",
+    "magic_link",
+    "username_password",
+    "phone_otp",
+    "oauth",
+    "passkey",
+    "sso"
+  ],
+  "oauth_providers": [
+    "google",
+    "github",
+    "microsoft",
+    "apple",
+    "gitlab",
+    "discord",
+    "x",
+    "facebook",
+    "linkedin",
+    "other"
+  ],
+  "block_reason": ["captcha", "paywall", "geo_block", "site_down", "not_found"],
+  "piece_types": [
+    "identity",
+    "guest_chat",
+    "signup_delta",
+    "free_tier",
+    "auth_flow",
+    "paid_pricing",
+    "referrals",
+    "not_found"
+  ],
+  "confidence": ["observed", "inferred"],
+  "origin": ["sheet", "github"],
+  "guest_modes": ["instant", "fast", "quick", "auto", "model_select", "unknown"],
+  "review_actions": ["flag", "resolve"],
+  "review_status": ["needs_reverify", "resolved"],
+  "severity": ["minor", "major"],
+  "host_blocklist": [
+    "localhost",
+    "t.me",
+    "x.com",
+    "twitter.com",
+    "bit.ly",
+    "tinyurl.com",
+    "goo.gl",
+    "t.co",
+    "google.com",
+    "bing.com",
+    "duckduckgo.com",
+    "youtube.com",
+    "facebook.com",
+    "reddit.com",
+    "linkedin.com",
+    "github.com",
+    "gist.github.com",
+    "medium.com",
+    "wikipedia.org",
+    "instagram.com",
+    "tiktok.com",
+    "discord.com",
+    "discord.gg",
+    "ow.ly",
+    "is.gd",
+    "cutt.ly",
+    "rb.gy",
+    "yahoo.com",
+    "yandex.com",
+    "baidu.com",
+    "example.com",
+    "example.org",
+    "example.net"
+  ]
+}

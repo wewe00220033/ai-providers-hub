@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📚 كتالوج مزودي الموديلات</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--txt:#1d2433;--muted:#5d6577;--line:#e2e6ef;--acc:#2f6fed;--acc2:#e8f0ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,'Segoe UI',Tahoma,Arial,sans-serif;line-height:1.7;word-break:keep-all}
+header{padding:20px 16px 8px;max-width:1100px;margin:0 auto}h1{margin:0 0 4px;font-size:26px}.muted{color:var(--muted);font-size:14px}
+.tools{max-width:1100px;margin:0 auto;padding:8px 16px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools input[type=search]{flex:1 1 260px;min-width:0;padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:15px}
+.tools select{padding:8px;border:1px solid var(--line);border-radius:8px}label.sw{display:inline-flex;gap:6px;align-items:center;font-size:14px}
+.models{display:flex;flex-wrap:wrap;gap:6px;width:100%}.models button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;cursor:pointer;font-size:13px}
+.models button.on{background:var(--acc);color:#fff;border-color:var(--acc)}#count{font-weight:600}
+main{max-width:1100px;margin:0 auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}.card h2{margin:0 0 6px;font-size:18px}
+.card .line{margin:2px 0;font-size:14px}.card a{color:var(--acc);word-break:break-all}.sec{margin-top:8px;font-weight:600}.sec .conf{color:#b54708;font-weight:600;margin-inline-start:6px}
+.card ul{margin:2px 0 0;padding-inline-start:18px}.card li{font-size:14px}.by{color:var(--muted);font-size:12px}.rev{color:#b54708}.old{color:var(--muted);text-decoration:line-through}
+.badge{display:inline-block;background:var(--acc2);border-radius:6px;padding:0 6px;font-size:12px;margin-inline-start:4px}
+</style>
+</head>
+<body>
+<header>
+<h1>📚 كتالوج مزودي الموديلات</h1>
+<div class="muted">آخر تحديث: 1970-01-01 02:00 ص · 0 مزود</div>
+</header>
+<section class="tools">
+<input id="q" type="search" placeholder="ابحث: المزود / الدومين / الموديل" aria-label="بحث">
+<select id="st" aria-label="الحالة"><option value="">كل الحالات</option><option value="verified">✅ موثق بوكيلين</option><option value="pending">🟡 بانتظار تأكيد ثانٍ</option><option value="needs_reverify">🔁 يحتاج إعادة فحص</option><option value="negative">🚫 دليل سلبي</option></select>
+<label class="sw"><input id="free" type="checkbox">مجاني فقط</label>
+<label class="sw"><input id="rev" type="checkbox">يحتاج إعادة فحص</label>
+<span class="muted">النتائج: <span id="count">0</span></span>
+<div id="models" class="models" aria-label="فلتر الموديلات"></div>
+</section>
+<main id="cards"></main>
+<script type="application/json" id="hub-data">{"generated_at_cairo":"1970-01-01 02:00 ص","generated_at_utc":"1970-01-01T00:00:00Z","models":["Fable 5","Fable 5.1","Fable 5.2","Opus 5.5","Mythos 5","Mythos 5.1","Mythos 5.2","Astra 6","Astra 6.2"],"providers":[]}</script>
+<script>
+(function(){
+'use strict';
+var raw=document.getElementById('hub-data').textContent;var DATA=JSON.parse(raw);var P=DATA.providers;var MODELS=DATA.models;
+var q=document.getElementById('q'),st=document.getElementById('st'),fr=document.getElementById('free'),rv=document.getElementById('rev'),mb=document.getElementById('models'),out=document.getElementById('cards'),cnt=document.getElementById('count');
+var sel={};
+function el(t,c){var e=document.createElement(t);if(c){e.className=c;}return e;}
+function txt(t,c,s){var e=el(t,c);e.textContent=s;return e;}
+MODELS.forEach(function(m){var b=txt('button','',m);b.type='button';b.addEventListener('click',function(){sel[m]=!sel[m];b.classList.toggle('on',!!sel[m]);render();});mb.appendChild(b);});
+function card(p){var c=el('article','card');c.appendChild(txt('h2','',p.name+' ('+p.host+') \u2014 '+p.status));
+var u=el('div','line');u.appendChild(document.createTextNode('\ud83d\udd17 \u0627\u0644\u0627\u0633\u062a\u062e\u062f\u0627\u0645: '));
+if(/^https:\/\//.test(p.usage_url)){var a=el('a');a.href=p.usage_url;a.rel='noopener noreferrer';a.target='_blank';a.textContent=p.usage_url;u.appendChild(a);}else{u.appendChild(document.createTextNode(p.usage_url));}
+c.appendChild(u);
+if(p.channels.length){c.appendChild(txt('div','line','\ud83d\udce1 \u0627\u0644\u0642\u0646\u0648\u0627\u062a: '+p.channels.join(' \u00b7 ')));}
+p.sections.forEach(function(s){var h=el('div','sec');h.appendChild(document.createTextNode(s.title));if(s.conflict){h.appendChild(txt('span','conf',s.conflict));}c.appendChild(h);
+var ul=el('ul');s.items.forEach(function(it){it.lines.forEach(function(ln){var li=el('li');if(!it.active){li.className='old';}li.appendChild(document.createTextNode(ln+' '));li.appendChild(txt('span','by','\u2014 '+it.by+' \u00b7 '+it.at));if(it.reverify){li.appendChild(txt('span','badge rev','\ud83d\udd01 \u064a\u062d\u062a\u0627\u062c \u0625\u0639\u0627\u062f\u0629 \u0641\u062d\u0635'));}ul.appendChild(li);});});c.appendChild(ul);});
+return c;}
+function match(p){var s=q.value.trim().toLowerCase();if(s){var hay=(p.host+' '+p.name+' '+p.models.join(' ')).toLowerCase();if(hay.indexOf(s)<0){return false;}}
+if(st.value&&p.status_key!==st.value){return false;}if(fr.checked&&!p.free){return false;}if(rv.checked&&!p.reverify){return false;}
+var keys=Object.keys(sel).filter(function(k){return sel[k];});if(keys.length){var ok=keys.some(function(k){return p.models.indexOf(k)>=0;});if(!ok){return false;}}return true;}
+function render(){while(out.firstChild){out.removeChild(out.firstChild);}var n=0;P.forEach(function(p){if(match(p)){out.appendChild(card(p));n++;}});cnt.textContent=String(n)+' / '+String(P.length);}
+[q,st,fr,rv].forEach(function(e){e.addEventListener('input',render);e.addEventListener('change',render);});
+render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+{
+  "project": "ai-providers-hub",
+  "plan_ref": "PLAN.md (v2 LOCKED_FOR_EXECUTION)",
+  "spec_ref": "SPEC_AND_MEMORY.md (update 6)",
+  "status": "LOCAL_COMPLETE_READY_FOR_MORNING_DEPLOY",
+  "owner_decisions_resolved": {
+    "OD1": "PR auto-validate + manual merge by owner; fork isolation: scripts/ + schemas/ from base.sha, pieces/** + reviews/** data only from head.sha",
+    "OD2": "setupProduction generates 10 agent + 1 owner + 1 sync tokens; issue_token / rotate_token / revoke_token / set_agent_label for owner",
+    "OD3": "token in Query String forbidden → 400 token_in_query_forbidden; authenticated reads via POST; GET = public read only without tok_tail / owner_correction"
+  },
+  "batch_policy": {
+    "order": ["D1", "D2", "D3", "D4"],
+    "pulse_task_first": "D1.T1",
+    "red_zone_single_task_per_batch": ["D2", "D3"],
+    "max_tasks_per_batch": 5,
+    "backoff_on_block": "return to 1 task/batch until 2 consecutive independent verifications pass",
+    "critic_budget_per_batch": 2,
+    "verify_command": "run_tests.cmd unit",
+    "final_verify_command": "run_tests.cmd all",
+    "rtl_safe": "no Markdown tables (| col |) in any generated .md"
+  },
+  "batches": [
+    {
+      "id": "D1",
+      "title": "Contracts, deterministic validator, catalog builder (with reviews/ overlay), prompts, GitHub workflows (fork-isolated), run_tests.cmd",
+      "red_zone": "partial (.github/workflows = config)",
+      "state": "done",
+      "closed_at_cairo": "2026-11-25 05:30 ص",
+      "final_verify": "run_tests.cmd unit → Ran 92 tests OK (skipped=1) [PASS]",
+      "critic_gate": "LENS scope-guard (ses_defbc4d0cffesm33tRiu1ECwQv) → PASS_WITH_MAJORS; 1 Major (push non-fast-forward) fixed; 2 Nitpicks dismissed with reason in DUET_LOG",
+      "rejections": 0,
+      "tasks": [
+        {
+          "id": "D1.T1",
+          "title": "Pulse task: schemas/ + enums + review_event schema + hub_common.py (canonical_json, normalize_host) + run_tests.cmd skeleton",
+          "files": [
+            "schemas/piece.base.schema.json",
+            "schemas/review_event.schema.json",
+            "schemas/enums.json",
+            "schemas/types/identity.schema.json",
+            "schemas/types/guest_chat.schema.json",
+            "schemas/types/signup_delta.schema.json",
+            "schemas/types/free_tier.schema.json",
+            "schemas/types/auth_flow.schema.json",
+            "schemas/types/paid_pricing.schema.json",
+            "schemas/types/referrals.schema.json",
+            "schemas/types/not_found.schema.json",
+            "schemas/types/_generic.schema.json",
+            "scripts/hub_common.py",
+            "tests/python/test_schemas_load.py",
+            "tests/python/test_hub_common.py"
+          ],
+          "owned_by_antigravity": ["run_tests.cmd"],
+          "acceptance": [
+            "Zero external pip/npm dependencies: Python 3.15 stdlib (unittest/json/hashlib) + Node v26 built-in test runner ONLY",
+            "Every schema parses cleanly as Draft-07 JSON Schema and is validated by hub_common stdlib Draft-07 structural/keyword validator (optional jsonschema if present)",
+            "review_event.schema.json: additionalProperties=false with whitelist {schema_version, review_id, piece_id, provider_id, canonical_host, action(flag|resolve), status(needs_reverify|resolved), severity, blind_hint, resolved_by_piece_id, flagged_agent_id, created_at_utc, created_at_cairo}; a fixture containing owner_correction MUST fail",
+            "guest_chat schema has: works_without_signup, mode(instant|fast|quick|auto|model_select|unknown), models_named[], free_credits_or_quota, requires_card, auto_charges_after_trial(bool|null), none_found, limits_notes",
+            "free_tier schema has: exists, includes_target_models, models_named[], free_models_other[], free_credits_or_quota, requires_card, auto_charges_after_trial(bool|null), how_to_use, none_found",
+            "enums.json: 9 full model names + family compact-display map (Claude Fable→'Fable 5 / 5.1 / 5.2', Claude Opus→'Opus 5.5', Claude Mythos→'Mythos 5 / 5.1 / 5.2', GPT Astra→'Astra 6 / 6.2') + 6 channels + captcha types + auth methods + oauth providers + block_reason",
+            "hub_common.canonical_json(obj): recursive key sort by Unicode code point, arrays keep order, separators=(',',':'), ensure_ascii=False, numbers unchanged; sha256 computed on UTF-8 bytes; test_hub_common.py pins expected sha256 for 3 fixtures (Arabic text, nested objects, arrays of objects) that D2/D4 Node tests must reproduce byte-identically",
+            "hub_common.normalize_host(): lowercase, strip scheme/port/path/www., reject no-dot/IP/localhost/blocklist",
+            "run_tests.cmd: no arg == unit; 'unit' runs Node + Python; 'all' runs unit + optional live smoke clearly SKIPPED when HUB_URL/HUB_TEST_TOKEN absent; exits 0 on green"
+          ],
+          "state": "done",
+          "verified_by": "planner independent run_tests.cmd unit → Ran 35 tests OK, [PASS]",
+          "verified_at_cairo": "2026-11-25 03:20 ص",
+          "reference_sha256": {
+            "EXPECTED_SHA_ARABIC": "dc0bafb4abcd51166f56ad4f1bb452d1a127409837b95884a90e73da5e32f83d",
+            "EXPECTED_SHA_NESTED": "579c2706f0ebbbbcb9fd366700e4dba5c4a9b8efb115bd8b74690d74235dcb45",
+            "EXPECTED_SHA_ARRAY": "ca9292b3baefb3363b0a6960d7fddfecfca98319a456a86682482a6ff685cdf9"
+          },
+          "accepted_deviations": ["paid_pricing plans items required [name, price]", "additionalProperties:false on paid_pricing/referrals/not_found"]
+        },
+        {
+          "id": "D1.T2",
+          "title": "scripts/validate_piece.py — deterministic 0-token validator (PLAN §6 rules 1-10) incl. reviews/ add-only + out_of_scope_path",
+          "files": ["scripts/validate_piece.py", "tests/python/test_validate_piece.py", "tests/fixtures/pieces/valid/*.json", "tests/fixtures/pieces/invalid/*.json", "tests/fixtures/reviews/valid/*.json", "tests/fixtures/reviews/invalid/*.json"],
+          "acceptance": [
+            "Each of PLAN §6 rules 1-10 has ≥1 invalid fixture rejected with a specific snake_case error and ≥1 valid fixture accepted",
+            "Path/content consistency (FINAL RULE, unified with PLAN): pieces/<host>/<agent_id>_<piece_id>.json ↔ provider.canonical_host / agent.agent_id / piece_id (full pc_ prefix); reviews/<review_id>.json ↔ review_id (full rv_ prefix)",
+            "Add-only mode (--diff <file>): any modified/deleted path under pieces/** or reviews/** fails; any added path outside pieces/** or reviews/** fails with out_of_scope_path",
+            "reviews/ file containing owner_correction fails with owner_correction_forbidden",
+            "Duplicate piece_id or review_id across repo fails",
+            "Uses hub_common.canonical_json + normalize_host (no duplicate implementations)",
+            "Exit code 0 success, 1 validation failure, 2 usage error"
+          ],
+          "state": "done",
+          "verified_by": "planner independent run_tests.cmd unit → Ran 73 tests OK, [PASS]; grep: imports from scripts.hub_common only, no duplicate implementations",
+          "verified_at_cairo": "2026-11-25 03:55 ص",
+          "error_codes_implemented": ["schema_violation", "payload_schema_violation", "invalid_canonical_host", "blocked_host", "evidence_not_https", "evidence_host_mismatch", "evidence_excerpt_length", "suspicious_path_segment", "double_slash_in_path", "repeated_path_segment", "tracking_params_present", "free_claim_unsupported", "free_claim_contradiction", "target_model_not_named", "target_model_not_in_evidence", "captcha_type_inconsistent", "probe_result_invalid", "checked_page_host_mismatch", "path_content_mismatch", "duplicate_piece_id", "duplicate_review_id", "review_schema_violation", "owner_correction_forbidden", "modify_or_delete_forbidden", "out_of_scope_path", "diff_parse_error", "invalid_json"],
+          "accepted_deviations": ["extra codes probe_result_invalid + invalid_json", "8 valid fixtures instead of 6"]
+        },
+        {
+          "id": "D1.T3",
+          "title": "scripts/build_catalog.py — CATALOG.md + docs/index.html with reviews/ overlay and messages.html card style",
+          "files": ["scripts/build_catalog.py", "tests/python/test_build_catalog.py", "docs/.gitkeep"],
+          "acceptance": [
+            "Reads pieces/** then applies reviews/*.json: latest event per piece_id (ordered by created_at_utc then ULID) sets status needs_reverify/resolved → catalog matches sheet state",
+            "Card layout per PLAN §5.1: provider title → '🔗 الاستخدام: <usage_url>' first line → 🆓 بدون تسجيل (guest_chat: mode Instant/Fast/Quick/Auto or model_select, models_named, credits) → 🎁 الباقة المجانية (target models found, free_models_other by name, quota, بطاقة نعم/لا, سحب تلقائي نعم/لا/غير معروف, how_to_use) → 📈 بعد التسجيل → 🔐 التسجيل والدخول (Sign up vs Login, methods, OAuth buttons, CAPTCHA type, Probe result) → 💳 المدفوع → 🤝 الإحالات",
+            "Models rendered compact per family without repeating family name; empty families/groups fully hidden (no 'غير متوفر' filler)",
+            "Status markers from reviews/: '🔁 يحتاج إعادة فحص' and conflicts '⚠️ تعارض: <agent_a> vs <agent_b>'; nothing hidden",
+            "Cairo 12h with ص/م from created_at_utc",
+            "Deterministic output (byte-identical on same input); no Markdown tables in CATALOG.md"
+          ],
+          "state": "done",
+          "verified_by": "planner independent run_tests.cmd unit → 73/73 OK (14 catalog tests incl. determinism, conflict marker, reviews overlay, no tables, html_safety); grep: datetime.now/innerHTML appear only in docstring as prohibitions",
+          "verified_at_cairo": "2026-11-25 03:55 ص",
+          "accepted_deviations": ["JSON escape of <!-- uses <\\u0021-- (valid JSON) instead of <\\!--", "not_found-only provider → 🚫 دليل سلبي status with priority after needs_reverify"]
+        },
+        {
+          "id": "D1.T4",
+          "title": "prompts/master_prompt.md (v1) — living prompt source",
+          "files": ["prompts/master_prompt.md"],
+          "acceptance": [
+            "Contains: mission, 9 models, 6 channels only, piece types with required fields incl. requires_card/auto_charges_after_trial/free_models_other, 'quote literally or not_found' rule, CAPTCHA stop rule, register_submit_intent-before-any-form rule, jdpx6218@gmail.com single-submission rule, prompt_version/426 re-read rule, server-derived identity (never send agent_id), token ONLY in POST body never in URL, success = ok && code in {200,201} not HTTP 200",
+            "Card style section mirrors PLAN §5.1 (free first, 🔗 الاستخدام first line, compact model names, hide empty groups)",
+            "Egyptian Arabic plain style, no filler, under 1,200 words, ends with exact JSON template for submit_piece",
+            "curl rule: -sL -H -d WITHOUT -X POST and WITHOUT --post302/--post303 (302 → /macros/echo accepts GET only)"
+          ],
+          "state": "done",
+          "verified_by": "planner grep: no post302/post303, 426 rule, success = ok && code∈{200,201}; 852 words",
+          "verified_at_cairo": "2026-11-25 05:30 ص"
+        },
+        {
+          "id": "D1.T5",
+          "title": ".github/workflows/validate-and-sync.yml (fork-isolated) + pages.yml + scripts/sync_to_sheet.py (HTTP-200 trap safe)",
+          "files": [".github/workflows/validate-and-sync.yml", ".github/workflows/pages.yml", "scripts/sync_to_sheet.py", "tests/python/test_sync_to_sheet.py"],
+          "acceptance": [
+            "Triggers only on push(main)/pull_request/workflow_dispatch — no cron",
+            "On pull_request: checkout scripts/ + schemas/ from github.event.pull_request.base.sha; fetch pieces/** and reviews/** ONLY from head.sha as data (separate checkout path + copy of the two dirs, or git show); no PR code executed; no secrets available in the PR job; runs validate_piece.py --diff in add-only mode",
+            "PR auto-merge NOT configured (OD1: manual merge by owner); workflow comment/summary documents the manual merge path",
+            "On push(main): build_catalog → commit CATALOG.md/docs with [hub-sync] prefix → sync step skipped if github.actor == 'github-actions[bot]' or head commit message starts with [hub-sync]",
+            "sync_to_sheet.py: follows 302; success ONLY when JSON ok === true && code in {200,201}; code 429 → backoff 2/4/8/16s then step fails; any other code → step fails and prints response; piece_id written to docs/.synced_ids.json ONLY after guardian confirmation; idempotent on rerun",
+            "test_sync_to_sheet.py uses a fake HTTP server returning HTTP 200 with bodies {code:429}, {code:422}, {code:201}, {ok:true,code:200,idempotent:true} and asserts behavior for each",
+            "pages.yml publishes docs/ on push(main) after build succeeds",
+            "Secrets used: HUB_URL, HUB_SYNC_TOKEN only (POST body); no PAT in workflows; token never in URL",
+            "pages.yml triggered via workflow_run on validate-and-sync (GITHUB_TOKEN pushes do not fire on:push) with conclusion==success guard + checkout ref: main",
+            "build-and-sync: concurrency sync-main; head_commit.message || '' safe for workflow_dispatch; git push via pull --rebase --autostash + 3 retries (critic Major fix)",
+            "validate_piece.py rejects symlinks under pieces/ and reviews/ (symlink_forbidden)"
+          ],
+          "state": "done",
+          "verified_by": "planner independent run_tests.cmd unit → 92 OK (skipped=1 symlink/Windows); manual YAML read of PR job isolation + push-retry loop; critic scope-guard PASS_WITH_MAJORS → Major fixed",
+          "verified_at_cairo": "2026-11-25 05:30 ص"
+        }
+      ],
+      "batch_acceptance": ["run_tests.cmd unit green", "planner independently reads validate_piece.py + build_catalog.py + sync_to_sheet.py + both workflows", "critic LENS: scope-guard PASS or Blockers resolved"]
+    },
+    {
+      "id": "D2",
+      "title": "apps_script/Code.gs — production guardian (single red-zone task)",
+      "red_zone": "yes (auth, secrets, GitHub push)",
+      "state": "done",
+      "closed_at_cairo": "2026-11-25 05:18 ص",
+      "final_verify": "run_tests.cmd all -> 96 Python OK (skipped=1 symlink/Windows) + 38/38 Node OK",
+      "critic_gate": "D2-1 & D2-2_fixed signed off by Fable 5.1 before Upstage 401 at 04:59 ص; D2-3 completed by Antigravity + independent research critic (8e60e589)",
+      "sub_batches": {
+        "D2-1": "APPROVED — appsscript.json + gas_mocks.js + mocks_smoke.test.js (15 Node)",
+        "D2-2": "APPROVED (after 10 owner-found schema-alignment fixes, rejections=1) — apps_script/Code.gs + tests/node/code_gs_smoke.test.js (8 Node); run_tests.cmd unit: 92 Python OK(skipped=1) + 23/23 Node",
+        "D2-3": "DONE — tests/node/code_gs.test.js (10 tests incl. 20x concurrency + real Python validate_piece.py cross-check) + critic hardening (isBlockedHost_, atomic probe reservation, prototype-key guards)"
+      },
+      "tasks": [
+        {
+          "id": "D2.T1",
+          "title": "Full production Code.gs + appsscript.json + Node vm harness",
+          "files": ["apps_script/Code.gs", "apps_script/appsscript.json", "tests/node/mocks/gas_mocks.js", "tests/node/code_gs.test.js"],
+          "acceptance": [
+            "setupProduction(): ensures all 12 tabs (MASTER_PROMPT moved to position 1, providers, provider_aliases, pieces, claim_leases, search_tasks, submit_log, owner_reviews, agent_scores, dashboard_view, logs, github_outbox) with headers per PLAN §4, pro styling, frozen headers, conditional formatting, protection on MASTER_PROMPT + owner_reviews, hidden owner_correction column, flushOutbox_ trigger every 10 min; idempotent",
+            "Tokens: AGENT_TOKENS_JSON {token: {agent_id, display_name, owner_label, role, source_kind, created_at, revoked}}; setup generates 10 agent + 1 owner + 1 sync only if absent; logged once; never written to any tab (test greps all sheet writes)",
+            "CWE-598 lock: any request (GET or POST) with token in query → code 400 token_in_query_forbidden before auth; token read only from POST body",
+            "GET public actions only: ping, get_prompt, get_tasks&state=open (no excluded_agent_id/claimed_by), catalog_summary, get_provider&host (no tok_tail, no owner_correction, summary only); authenticated reads list/get_tasks/get_provider/my_score via POST",
+            "Token-derived identity: body agent_id/display_name ignored; mismatch → logs identity_mismatch + hint",
+            "All 14 actions in PLAN §3.4 with role gating §3.3 → 403 role_not_allowed; issue_token returns token once in response only; rotate_token/revoke_token/set_agent_label implemented",
+            "LOCK RULE: NO UrlFetchApp call while LockService lock is held — gas_mocks UrlFetchApp throws if lock held; submit_piece writes piece row with github_state=queued inside lock (target ≤800ms), releases lock, then PUTs to GitHub; on 201/422-exists → micro-update waitLock(2500) set github_state=pushed + github_sha; on GitHub failure OR micro-lock failure → github_outbox row {piece_id, kind:piece|review, path, attempts, next_retry_utc, last_error}",
+            "flushOutbox_: ≤25 rows/run, exponential backoff, dead after 6 attempts, PUT outside lock then micro-update; origin=github never enters outbox",
+            "prompt_version gate: sha256(trim(A1)).slice(0,12) cached 60s; onEdit(e) on MASTER_PROMPT!A1 recomputes, writes B1 (version) + C1 (Cairo ص/م), clears cache key prompt:v immediately; set_prompt calls same refreshPromptVersion_(); submit_piece/claim_task/complete_task mismatch → 426 with full prompt in data.prompt",
+            "canonicalJson_ identical to hub_common.canonical_json: Node test reproduces the 3 pinned sha256 values from D1.T1 byte-identically; idempotency_key = sha256(agent_id|host|piece_type|canonicalJson_(payload))",
+            "Validator rules §6 server-side (shared fixtures pass both Code.gs and validate_piece.py)",
+            "providers summary columns (usage_url, agents_contributed 'خالد(2) · عباس(1)', models_found_compact 'Fable 5/5.1 · Astra 6', free_summary, auth_summary, owner_review_note, pieces_count) recomputed inside lock by recomputeProviderSummary_(provider_id) on submit_piece / flag_piece / resolve_review; conflicts shown as '⚠️ تعارض: a vs b'",
+            "flag_piece: owner_reviews row, piece+provider → needs_reverify, blind_reverify task with excluded_agent_id + blind_hint, agent_scores -3/-1, then OUTSIDE lock push reviews/<review_id>_<ulid>.json built from whitelist (test asserts owner_correction absent in pushed body); resolve_review pushes action=resolve event; failures → outbox kind=review",
+            "claim_task 15-min lease / expired reclaim / excluded 403 / foreign 409; register_submit_intent one row per host forever → 409; report_captcha locks + auto auth_flow piece; probe_email requires active intent by same agent, called outside lock, max 3 → 429 probe_limit_reached",
+            "sync_from_github idempotent, origin=github, no reverse push",
+            "CacheService chunking idx:<name>:meta + idx:<name>:<i> ≤ 90,000 bytes; rebuild on miss; list paginated cursor/limit ≤ 200",
+            "Cairo display via Utilities.formatDate(d,'Africa/Cairo','yyyy-MM-dd hh:mm a') AM→ص PM→م in every *_cairo column",
+            "Rate limits: 60 submit/hour/agent → 429 agent_rate_limited; payload ≤ 20KB → 422 payload_too_large",
+            "Node vm tests cover every PLAN §11 scenario; run_tests.cmd unit green"
+          ],
+          "state": "done"
+        }
+      ],
+      "batch_acceptance": ["run_tests.cmd unit green", "planner reads Code.gs fully; greps: no token written to sheet, no UrlFetchApp inside lock, no owner_correction in reviews payload, no token read from e.parameter", "critic LENS: fish on auth + lock/outbox + 426 + reviews capsule — PASS required before D3"]
+    },
+    {
+      "id": "D3",
+      "title": "apps_script/GmailProbe.gs + HMAC integration (single red-zone task)",
+      "red_zone": "yes (mailbox, shared secret)",
+      "state": "done",
+      "closed_at_cairo": "2026-11-25 05:18 ص",
+      "verified_by": "Antigravity run_tests.cmd all + independent research critic (8e60e589)",
+      "tasks": [
+        {
+          "id": "D3.T1",
+          "title": "GmailProbe.gs isolated web app + guardian-side signed call + tests",
+          "files": ["apps_script/GmailProbe.gs", "apps_script/GmailProbe.appsscript.json", "tests/node/gmail_probe.test.js", "tests/fixtures/emails/*.json"],
+          "acceptance": [
+            "POST only; verifies sig = HMAC-SHA256(SHARED_SECRET, host|agent_id|ts_utc|nonce) via Utilities.computeHmacSha256Signature; rejects ts older than 5 min, replayed nonce (CacheService 10 min), bad sig → code 401; token/sig never accepted from query",
+            "Search after:<epoch> in:anywhere to:jdpx6218@gmail.com (fixed from newer_than:20m which means months in Gmail); sender filtered by host or aliases list",
+            "Classification otp | magic_link | none; fixtures cover all three + Arabic/English + spam-folder case",
+            "Response: result, matched_sender_domain, received_at_utc only — test asserts absence of body/link/code",
+            "Guardian probe_email calls GmailProbe OUTSIDE lock with signed payload, stores result in submit_log.probe_result, enforces 3-call cap",
+            "SHARED_SECRET only from PropertiesService in both scripts; no secret literal in source (grep test)"
+          ],
+          "state": "done"
+        }
+      ],
+      "batch_acceptance": ["run_tests.cmd unit green", "planner greps both .gs for secret/token literals", "critic LENS: fish on leakage — PASS required before D4"]
+    },
+    {
+      "id": "D4",
+      "title": "Full test suite, agent connection templates, README_DEPLOY",
+      "red_zone": "no",
+      "state": "done",
+      "closed_at_cairo": "2026-11-25 05:18 ص",
+      "verified_by": "Antigravity run_tests.cmd all (96 Python OK, 38 Node OK) + independent research critic (8e60e589)",
+      "tasks": [
+        {
+          "id": "D4.T1",
+          "title": "Complete Node vm + Python regression suite + cross-language canonical_json parity + live smoke",
+          "files": ["tests/node/*.test.js", "tests/python/test_*.py", "tests/python/test_canonical_parity.py", "tests/smoke/live_smoke.py", "run_tests.cmd"],
+          "acceptance": [
+            "Every scenario in PLAN §11 has a named test",
+            "test_canonical_parity.py: runs Node (vm) canonicalJson_ and Python canonical_json on shared fixtures (Arabic, nested, unicode escapes, numbers) and asserts identical sha256",
+            "run_tests.cmd all: unit + live smoke (ping → get_prompt → submit_piece ×2 idempotent → POST list → GET with token in query must return code 400) when HUB_URL+HUB_TEST_TOKEN set; else prints SKIPPED LIVE SMOKE and exits 0",
+            "Total unit runtime < 60s on Windows"
+          ],
+          "state": "done"
+        },
+        {
+          "id": "D4.T2",
+          "title": "Agent connection templates",
+          "files": ["prompts/agent_connect/opencode.md", "prompts/agent_connect/claude_mcp.md", "prompts/agent_connect/custom_gpt_openapi.yaml", "prompts/agent_connect/generic_script.md"],
+          "acceptance": [
+            "Each template: POST with token in body ONLY (never URL), follow 302, success = ok && code in {200,201}, handle 426 by re-reading prompt from data.prompt, handle 429 backoff 2/4/8s, never send agent_id",
+            "custom_gpt_openapi.yaml validates as OpenAPI 3.1, single POST operation with action enum, token as body field (no apiKey-in-query security scheme)",
+            "Templates state: closed chats without tools are read-only (GitHub Pages catalog link)"
+          ],
+          "state": "done"
+        },
+        {
+          "id": "D4.T3",
+          "title": "README_DEPLOY.md — 5-minute morning deploy guide for the owner",
+          "files": ["README_DEPLOY.md"],
+          "acceptance": [
+            "Numbered steps with expected screen result: (1) clean Google account + new Sheet, (2) paste Code.gs + appsscript.json, (3) Script Properties GITHUB_PAT/GITHUB_REPO/SHARED_SECRET/GMAIL_PROBE_URL, (4) run setupProduction and copy 12 tokens once, (5) Deploy Web App Execute as Me / Anyone, (6) jdpx6218 account: paste GmailProbe.gs + SHARED_SECRET + deploy, (7) GitHub public repo + Secrets HUB_URL/HUB_SYNC_TOKEN + Pages on docs/ + note manual PR merge, (8) run_tests.cmd all with HUB_URL",
+            "Lists resolved OD1/OD2/OD3 and how to change them later (issue_token etc.)",
+            "Lists remaining [يحتاج فحص حي] items with how to verify each",
+            "Egyptian Arabic, no Markdown tables"
+          ],
+          "state": "done"
+        }
+      ],
+      "batch_acceptance": ["run_tests.cmd all green (live part skipped or passed)", "critic LENS: fish final capsule PASS", "planner writes [FINAL_APPROVED] in DUET_LOG.md"]
+    }
+  ],
+  "needs_live_check": [
+    "Actual daily trigger quota consumption of flushOutbox_ every 10 min",
+    "Gmail spam classification of provider verification mails (in:anywhere)",
+    "UrlFetchApp PUT to GitHub latency outside lock under 30 concurrent executions; micro-lock contention rate",
+    "onEdit simple trigger reliability when A1 edited via paste vs typing"
+  ]
+}

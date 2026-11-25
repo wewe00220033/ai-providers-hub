@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "review_id": "rv_01HZXK3M9PQR7T2V4W6Y8A0BD3",
+  "piece_id": "pc_01HZXK3M9PQR7T2V4W6Y8A0B02",
+  "provider_id": "prov_9aafff29",
+  "canonical_host": "chat.deepseek.com",
+  "action": "flag",
+  "status": "needs_reverify",
+  "flagged_agent_id": "ag_alpha",
+  "created_at_utc": "2026-11-25T00:30:00Z",
+  "created_at_cairo": "",
+  "owner_correction": "private note must never be here"
+}

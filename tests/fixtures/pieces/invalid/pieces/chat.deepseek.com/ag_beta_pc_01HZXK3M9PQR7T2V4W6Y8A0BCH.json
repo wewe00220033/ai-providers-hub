@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "piece_id": "pc_01HZXK3M9PQR7T2V4W6Y8A0BCH",
+  "provider": {
+    "provider_id": "prov_9aafff29",
+    "canonical_host": "chat.deepseek.com",
+    "display_name": "DeepSeek"
+  },
+  "agent": {
+    "agent_id": "ag_beta",
+    "display_name": "Beta",
+    "source_kind": "github"
+  },
+  "piece_type": "auth_flow",
+  "model_tag": null,
+  "channels": [
+    "Chat"
+  ],
+  "summary": "التسجيل عبر OTP أو OAuth مع Turnstile",
+  "payload": {
+    "flow": "signup",
+    "methods": [
+      "email_otp",
+      "oauth"
+    ],
+    "oauth_providers": [
+      "google",
+      "github"
+    ],
+    "captcha": {
+      "detected": true,
+      "type": "turnstile"
+    },
+    "notes": "",
+    "probe_result": "sms"
+  },
+  "evidence": {
+    "url": "https://chat.deepseek.com/sign_up",
+    "excerpt": "Sign up with email code or continue with Google / GitHub",
+    "captured_at_utc": "2026-11-24T23:00:00Z"
+  },
+  "confidence": "observed",
+  "origin": "sheet",
+  "created_at_utc": "2026-11-24T23:00:00Z",
+  "created_at_cairo": "",
+  "conflict_with": null,
+  "supersedes_piece_id": null
+}

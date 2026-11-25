@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-providers-hub/schemas/types/identity.schema.json",
+  "title": "payload: identity",
+  "description": "Provider identity: display name, the page where the product is actually used, and the access channels.",
+  "type": "object",
+  "required": ["display_name", "usage_url", "access_types"],
+  "properties": {
+    "display_name": { "type": "string", "minLength": 1 },
+    "usage_url": { "type": "string", "pattern": "^https://" },
+    "access_types": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["Chat", "Browser", "API", "CLI", "IDE", "Desktop"] }
+    },
+    "aliases": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" }
+  }
+}

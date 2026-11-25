@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-providers-hub/schemas/types/auth_flow.schema.json",
+  "title": "payload: auth_flow",
+  "description": "Signup or login flow: methods from the closed list, OAuth buttons, CAPTCHA detection. probe_result is SERVER-ONLY (set by the guardian from GmailProbe; agents must not send it).",
+  "type": "object",
+  "required": ["flow", "methods", "captcha"],
+  "properties": {
+    "flow": { "type": "string", "enum": ["signup", "login"] },
+    "methods": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["email_password", "email_otp", "magic_link", "username_password", "phone_otp", "oauth", "passkey", "sso"]
+      }
+    },
+    "oauth_providers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["google", "github", "microsoft", "apple", "gitlab", "discord", "x", "facebook", "linkedin", "other"]
+      }
+    },
+    "captcha": {
+      "type": "object",
+      "required": ["detected", "type"],
+      "properties": {
+        "detected": { "type": "boolean" },
+        "type": {
+          "type": "string",
+          "enum": ["none", "turnstile", "recaptcha_v2", "recaptcha_v3", "hcaptcha", "arkose", "geetest", "image_captcha", "unknown"]
+        }
+      }
+    },
+    "probe_result": {
+      "type": "string",
+      "description": "SERVER-ONLY. Written by the guardian after probe_email (GmailProbe). Agents never submit this field; empty string means not probed.",
+      "enum": ["otp", "magic_link", "none", "unknown", ""]
+    },
+    "notes": { "type": "string" }
+  }
+}

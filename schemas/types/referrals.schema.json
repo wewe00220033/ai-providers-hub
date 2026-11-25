@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-providers-hub/schemas/types/referrals.schema.json",
+  "title": "Payload: referrals",
+  "description": "Whether the provider has a referral program, and whether the reward is granted immediately on invitee signup or only after the invitee pays/tops up.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["exists"],
+  "properties": {
+    "exists": { "type": "boolean" },
+    "reward_immediate": { "type": ["boolean", "null"] },
+    "requires_invitee_payment": { "type": ["boolean", "null"] },
+    "reward_description": { "type": "string" }
+  }
+}

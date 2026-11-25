@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-providers-hub/schemas/types/_generic.schema.json",
+  "title": "Payload: _generic (fallback)",
+  "description": "Fallback payload schema for any new or unknown piece_type. It imposes no payload fields; such pieces only need the piece-level summary and evidence required by piece.base.schema.json.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {}
+}

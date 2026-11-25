@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-providers-hub/schemas/types/paid_pricing.schema.json",
+  "title": "Payload: paid_pricing",
+  "description": "Paid plans or per-million-token prices plus usage terms, quoted verbatim from the provider's pricing page.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["plans"],
+  "properties": {
+    "plans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "price"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "price": { "type": "string" },
+          "period": { "type": "string" },
+          "includes_target_models": { "type": "boolean" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "per_million_tokens": { "type": "string" },
+    "terms_excerpt": { "type": "string", "maxLength": 600 }
+  }
+}

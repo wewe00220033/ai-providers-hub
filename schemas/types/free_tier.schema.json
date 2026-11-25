@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-providers-hub/schemas/types/free_tier.schema.json",
+  "title": "payload: free_tier",
+  "description": "Free plan after signup. Either models_named has >=1 entry or none_found is true (validator rule 5). includes_target_models=true requires a model_tag from the 9 target models on the piece envelope.",
+  "type": "object",
+  "required": ["exists", "includes_target_models", "models_named", "free_models_other", "none_found"],
+  "properties": {
+    "exists": { "type": "boolean" },
+    "includes_target_models": { "type": "boolean" },
+    "models_named": { "type": "array", "items": { "type": "string" } },
+    "free_models_other": { "type": "array", "items": { "type": "string" } },
+    "free_credits_or_quota": { "type": "string" },
+    "requires_card": { "type": "boolean" },
+    "auto_charges_after_trial": { "type": ["boolean", "null"] },
+    "how_to_use": { "type": "string" },
+    "none_found": { "type": "boolean" }
+  }
+}

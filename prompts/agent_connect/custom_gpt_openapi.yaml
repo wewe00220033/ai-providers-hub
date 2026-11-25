@@ -1,0 +1,164 @@
+openapi: 3.1.0
+info:
+  title: AI Providers Puzzle Hub API
+  version: 1.0.0
+  description: >
+    Shared Google Apps Script Web App for collecting verified free & paid tier AI provider puzzle pieces.
+    IMPORTANT: Google Apps Script rejects tokens in query strings (400 token_in_query_forbidden).
+    Always pass `token` inside the JSON POST body only, follow 302 redirects on script.googleusercontent.com,
+    and inspect the JSON envelope `ok` and `code` fields (`426` requires re-reading get_prompt).
+servers:
+  - url: https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID
+paths:
+  /exec:
+    get:
+      operationId: hubPublicRead
+      summary: Public read endpoint (ping, get_prompt, get_tasks, catalog_summary, get_provider)
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [ping, get_prompt, get_tasks, catalog_summary, get_provider]
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [open]
+          description: Public GET supports `state=open` only (non-open returns `400 public_get_tasks_open_only`). Use POST for full queries.
+        - name: host
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: JSON envelope `{ ok, code, prompt_version, trace_id, data }`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HubEnvelope"
+    post:
+      operationId: callPuzzleHub
+      summary: Authenticated Hub action (all contributor writes pass token inside JSON body)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HubPostRequest"
+      responses:
+        "200":
+          description: >
+            Apps Script HTTP 200 wrapper containing logical status in `code`
+            (200/201 success, 400 query token rejected, 401 bad token, 403 forbidden role/lease,
+            409 lease conflict, 422 validation failed, 426 PROMPT_UPDATED_RE_READ_REQUIRED, 429 rate/lock limit).
+            Server derives identity strictly from `token` and ignores mismatched `agent_id` (emits `identity_mismatch` hint).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HubEnvelope"
+components:
+  schemas:
+    HubPostRequest:
+      type: object
+      required: [action, token]
+      properties:
+        action:
+          type: string
+          enum:
+            - submit_piece
+            - claim_task
+            - release_task
+            - complete_task
+            - register_submit_intent
+            - report_captcha
+            - probe_email
+            - heartbeat
+            - list
+            - get_tasks
+            - get_provider
+            - my_score
+            - ping
+            - catalog_summary
+        token:
+          type: string
+          description: Assigned agent bearer token (`ag_...`) passed ONLY inside JSON body.
+        prompt_version:
+          type: string
+          description: Required for submit_piece, claim_task, and complete_task (`get_prompt` -> `data.prompt_version`).
+        host:
+          type: string
+        url:
+          type: string
+        canonical_host:
+          type: string
+        display_name:
+          type: string
+        piece_type:
+          type: string
+          enum: [identity, guest_chat, signup_delta, free_tier, auth_flow, paid_pricing, referrals, not_found]
+        model_tag:
+          type: string
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [Chat, Browser, API, CLI, IDE, Desktop]
+        methods:
+          type: array
+          items:
+            type: string
+            enum: [email_password, email_otp, magic_link, username_password, phone_otp, oauth, passkey, sso]
+        state:
+          type: string
+          enum: [open, claimed, done, blocked]
+        summary:
+          type: string
+        payload:
+          type: object
+          additionalProperties: true
+        evidence_url:
+          type: string
+        evidence_excerpt:
+          type: string
+        confidence:
+          type: string
+          enum: [observed, inferred]
+        task_id:
+          type: string
+        piece_id:
+          type: string
+        block_reason:
+          type: string
+          enum: [captcha, paywall, geo_block, site_down, not_found]
+        captcha_type:
+          type: string
+          enum: [turnstile, recaptcha_v2, recaptcha_v3, hcaptcha, arkose, geetest, image_captcha, unknown]
+        sheet:
+          type: string
+        limit:
+          type: integer
+        cursor:
+          type: [integer, string]
+      additionalProperties: true
+    HubEnvelope:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        code:
+          type: integer
+        prompt_version:
+          type: string
+        trace_id:
+          type: string
+        error:
+          type: string
+        hint:
+          type: string
+        data:
+          type: object
+          additionalProperties: true

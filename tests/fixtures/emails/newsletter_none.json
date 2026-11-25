@@ -1,0 +1,19 @@
+{
+  "name": "newsletter_none",
+  "threads": [
+    {
+      "messages": [
+        {
+          "from": "Updates <news@free-ai-test.org>",
+          "to": "jdpx6218@gmail.com",
+          "subject": "Weekly digest",
+          "plainBody": "Read our new post at https://free-ai-test.org/blog/release-notes\nCopyright © 2026 Free AI Test Inc.",
+          "body": "<p>Read our <a href=\"https://free-ai-test.org/blog/release-notes\">blog</a> © 2026</p>",
+          "dateOffsetMin": -3,
+          "inSpam": false,
+          "inTrash": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "piece_id": "pc_01HZXK3M9PQR7T2V4W6Y8A0B08",
+  "provider": {
+    "provider_id": "prov_9aafff29",
+    "canonical_host": "chat.deepseek.com",
+    "display_name": "DeepSeek"
+  },
+  "agent": {
+    "agent_id": "ag_beta",
+    "display_name": "Beta",
+    "source_kind": "github"
+  },
+  "piece_type": "referrals",
+  "model_tag": null,
+  "channels": [
+    "Chat"
+  ],
+  "summary": "نظام إحالة بمكافأة بعد شراء المدعو",
+  "payload": {
+    "exists": true,
+    "reward_immediate": false,
+    "requires_invitee_payment": true,
+    "reward_description": "$5 credit after the invitee makes a first purchase"
+  },
+  "evidence": {
+    "url": "https://chat.deepseek.com/referrals",
+    "excerpt": "Invite friends and earn $5 credit after their first purchase",
+    "captured_at_utc": "2026-11-24T23:40:00Z"
+  },
+  "confidence": "observed",
+  "origin": "sheet",
+  "created_at_utc": "2026-11-24T23:40:00Z",
+  "created_at_cairo": "",
+  "conflict_with": null,
+  "supersedes_piece_id": null
+}

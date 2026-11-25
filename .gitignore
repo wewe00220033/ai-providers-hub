@@ -1,0 +1,23 @@
+# Python caches & temporary artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environment & local secret vaults (NEVER commit tokens/secrets)
+.env
+.env.*
+keys.txt
+keys.md
+*.key
+*.pem
+*.bak
+
+# Editor / OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / Test temp artifacts
+node_modules/
+*.log

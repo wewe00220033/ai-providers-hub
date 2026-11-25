@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "piece_id": "pc_01HZXK3M9PQR7T2V4W6Y8A0B03",
+  "provider": {
+    "provider_id": "prov_9aafff29",
+    "canonical_host": "chat.deepseek.com",
+    "display_name": "DeepSeek"
+  },
+  "agent": {
+    "agent_id": "ag_alpha",
+    "display_name": "Alpha",
+    "source_kind": "sheet"
+  },
+  "piece_type": "free_tier",
+  "model_tag": "Claude Fable 5.2",
+  "channels": [
+    "Chat"
+  ],
+  "summary": "الباقة المجانية بعد التسجيل تشمل موديلات مستهدفة",
+  "payload": {
+    "exists": true,
+    "includes_target_models": true,
+    "models_named": [
+      "Claude Fable 5",
+      "Claude Fable 5.2"
+    ],
+    "free_models_other": [
+      "DeepSeek-V4"
+    ],
+    "free_credits_or_quota": "50 messages/day",
+    "requires_card": false,
+    "auto_charges_after_trial": null,
+    "how_to_use": "Sign up with email then open the model picker",
+    "none_found": false
+  },
+  "evidence": {
+    "url": "https://chat.deepseek.com/pricing",
+    "excerpt": "Free plan includes Claude Fable 5 and Claude Fable 5.2 with 50 messages per day.",
+    "captured_at_utc": "2026-11-24T22:00:00Z"
+  },
+  "confidence": "observed",
+  "origin": "sheet",
+  "created_at_utc": "2026-11-24T22:00:00Z",
+  "created_at_cairo": "",
+  "conflict_with": null,
+  "supersedes_piece_id": null
+}

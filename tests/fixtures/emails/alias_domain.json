@@ -1,0 +1,19 @@
+{
+  "name": "alias_domain",
+  "threads": [
+    {
+      "messages": [
+        {
+          "from": "Auth Gateway <verify@auth.mirror-ai.io>",
+          "to": "jdpx6218@gmail.com",
+          "subject": "رمز التحقق الخاص بك",
+          "plainBody": "كود التفعيل الخاص بك هو 739104 للدخول إلى الحساب.",
+          "body": "<p>كود التفعيل الخاص بك هو 739104</p>",
+          "dateOffsetMin": -4,
+          "inSpam": false,
+          "inTrash": false
+        }
+      ]
+    }
+  ]
+}

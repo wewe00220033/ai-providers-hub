@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "piece_id": "pc_01HZXK3M9PQR7T2V4W6Y8A0BC6",
+  "provider": {
+    "provider_id": "prov_9aafff29",
+    "canonical_host": "chat.deepseek.com",
+    "display_name": "DeepSeek"
+  },
+  "agent": {
+    "agent_id": "ag_alpha",
+    "display_name": "Alpha",
+    "source_kind": "sheet"
+  },
+  "piece_type": "guest_chat",
+  "model_tag": "Claude Fable 5",
+  "channels": [
+    "Chat"
+  ],
+  "summary": "شات مجاني بدون تسجيل بوضع فوري",
+  "payload": {
+    "works_without_signup": true,
+    "mode": "instant",
+    "models_named": [
+      "Claude Fable 5"
+    ],
+    "free_credits_or_quota": "10 messages/day",
+    "requires_card": false,
+    "auto_charges_after_trial": null,
+    "none_found": false,
+    "limits_notes": ""
+  },
+  "evidence": {
+    "url": "https://other-site.ai/page",
+    "excerpt": "Try Claude Fable 5 instantly without creating an account",
+    "captured_at_utc": "2026-11-24T21:00:00Z"
+  },
+  "confidence": "observed",
+  "origin": "sheet",
+  "created_at_utc": "2026-11-24T21:00:00Z",
+  "created_at_cairo": "",
+  "conflict_with": null,
+  "supersedes_piece_id": null
+}

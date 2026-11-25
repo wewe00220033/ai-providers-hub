@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-providers-hub/schemas/types/guest_chat.schema.json",
+  "title": "payload: guest_chat",
+  "description": "Chat usable without signing up. Either models_named has >=1 entry or none_found is true (validator rule 5).",
+  "type": "object",
+  "required": ["works_without_signup", "mode", "models_named", "none_found"],
+  "properties": {
+    "works_without_signup": { "type": "boolean" },
+    "mode": { "type": "string", "enum": ["instant", "fast", "quick", "auto", "model_select", "unknown"] },
+    "models_named": { "type": "array", "items": { "type": "string" } },
+    "free_credits_or_quota": { "type": "string" },
+    "requires_card": { "type": "boolean" },
+    "auto_charges_after_trial": { "type": ["boolean", "null"] },
+    "none_found": { "type": "boolean" },
+    "limits_notes": { "type": "string" }
+  }
+}

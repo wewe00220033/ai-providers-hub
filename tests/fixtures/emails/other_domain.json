@@ -1,0 +1,19 @@
+{
+  "name": "other_domain",
+  "threads": [
+    {
+      "messages": [
+        {
+          "from": "Phish <security@evil-free-ai-test.org>",
+          "to": "jdpx6218@gmail.com",
+          "subject": "Your OTP code is 123456",
+          "plainBody": "Verification code: 123456 https://evil-free-ai-test.org/verify?token=fake",
+          "body": "<p>Verification code: 123456</p>",
+          "dateOffsetMin": -1,
+          "inSpam": false,
+          "inTrash": false
+        }
+      ]
+    }
+  ]
+}

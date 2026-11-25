@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "piece_id": "pc_01HZXK3M9PQR7T2V4W6Y8A0B01",
+  "provider": {
+    "provider_id": "prov_9aafff29",
+    "canonical_host": "chat.deepseek.com",
+    "display_name": "DeepSeek"
+  },
+  "agent": {
+    "agent_id": "ag_alpha",
+    "display_name": "Alpha",
+    "source_kind": "sheet"
+  },
+  "piece_type": "identity",
+  "model_tag": null,
+  "channels": [
+    "Chat",
+    "API"
+  ],
+  "summary": "هوية مزود DeepSeek وصفحة الاستخدام الرئيسية",
+  "payload": {
+    "display_name": "DeepSeek",
+    "usage_url": "https://chat.deepseek.com/",
+    "access_types": [
+      "Chat",
+      "API"
+    ],
+    "aliases": [
+      "deepseek.com"
+    ],
+    "notes": ""
+  },
+  "evidence": {
+    "url": "https://chat.deepseek.com/",
+    "excerpt": "DeepSeek chat - start chatting with the model now",
+    "captured_at_utc": "2026-11-24T20:00:00Z"
+  },
+  "confidence": "observed",
+  "origin": "sheet",
+  "created_at_utc": "2026-11-24T20:00:00Z",
+  "created_at_cairo": "",
+  "conflict_with": null,
+  "supersedes_piece_id": null
+}

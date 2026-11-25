@@ -1,0 +1,19 @@
+{
+  "name": "otp_inbox",
+  "threads": [
+    {
+      "messages": [
+        {
+          "from": "Provider Auth <no-reply@mail.free-ai-test.org>",
+          "to": "jdpx6218@gmail.com",
+          "subject": "Your verification code",
+          "plainBody": "Hello!\nUse verification code 849201 to finish signing up. Valid for 10 minutes.\n© 2026 Free AI Test",
+          "body": "<p>Use verification code <strong>849201</strong> to finish signing up.</p>",
+          "dateOffsetMin": -2,
+          "inSpam": false,
+          "inTrash": false
+        }
+      ]
+    }
+  ]
+}

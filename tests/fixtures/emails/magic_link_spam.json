@@ -1,0 +1,19 @@
+{
+  "name": "magic_link_spam",
+  "threads": [
+    {
+      "messages": [
+        {
+          "from": "Sign-in Bot <auth@free-ai-test.org>",
+          "to": "Tester <jdpx6218@gmail.com>",
+          "subject": "Log in to Free AI Test",
+          "plainBody": "Click here to log in:\nhttps://free-ai-test.org/auth/callback?token=secret_magic_token_9911\nCopyright 2026 Free AI Test",
+          "body": "<a href=\"https://free-ai-test.org/auth/callback?token=secret_magic_token_9911\">Sign in now</a>",
+          "dateOffsetMin": -5,
+          "inSpam": true,
+          "inTrash": false
+        }
+      ]
+    }
+  ]
+}

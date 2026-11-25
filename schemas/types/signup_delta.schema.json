@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ai-providers-hub/schemas/types/signup_delta.schema.json",
+  "title": "payload: signup_delta",
+  "description": "What changes after creating a free account compared to guest usage.",
+  "type": "object",
+  "required": ["credits_increase", "unlocked_models"],
+  "properties": {
+    "credits_increase": { "type": ["boolean", "null"] },
+    "unlocked_models": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" }
+  }
+}

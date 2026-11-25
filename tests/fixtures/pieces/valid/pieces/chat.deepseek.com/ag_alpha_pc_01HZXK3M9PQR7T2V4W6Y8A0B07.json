@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "piece_id": "pc_01HZXK3M9PQR7T2V4W6Y8A0B07",
+  "provider": {
+    "provider_id": "prov_9aafff29",
+    "canonical_host": "chat.deepseek.com",
+    "display_name": "DeepSeek"
+  },
+  "agent": {
+    "agent_id": "ag_alpha",
+    "display_name": "Alpha",
+    "source_kind": "sheet"
+  },
+  "piece_type": "signup_delta",
+  "model_tag": null,
+  "channels": [
+    "Chat"
+  ],
+  "summary": "بعد التسجيل يزيد الرصيد وتُفتح موديلات إضافية",
+  "payload": {
+    "credits_increase": true,
+    "unlocked_models": [
+      "DeepSeek-V4"
+    ],
+    "notes": "50 messages/day after signup"
+  },
+  "evidence": {
+    "url": "https://chat.deepseek.com/pricing",
+    "excerpt": "Create a free account to unlock 50 messages per day and DeepSeek-V4",
+    "captured_at_utc": "2026-11-24T22:30:00Z"
+  },
+  "confidence": "observed",
+  "origin": "sheet",
+  "created_at_utc": "2026-11-24T22:30:00Z",
+  "created_at_cairo": "",
+  "conflict_with": null,
+  "supersedes_piece_id": null
+}

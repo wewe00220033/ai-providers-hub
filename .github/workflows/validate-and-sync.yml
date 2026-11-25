@@ -1,0 +1,146 @@
+name: validate-and-sync
+
+# Triggers: push(main) / pull_request(main) / manual. NO cron.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # PR job (fork-isolated): trusted code from base.sha, ONLY pieces/** and
+  # reviews/** taken from the PR head as DATA. No secrets are available here.
+  # Merge is MANUAL by the owner (OD1) - no auto-merge is configured.
+  # ---------------------------------------------------------------------------
+  validate-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout trusted code (base.sha)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch PR data dirs only (pieces/, reviews/) from head.sha
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.clone_url }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git remote add prhead "$HEAD_REPO"
+          git fetch --no-tags prhead "$HEAD_SHA"
+          git diff --name-status "$BASE_SHA" FETCH_HEAD > /tmp/diff.txt
+          echo '--- name-status diff ---'
+          cat /tmp/diff.txt
+          # data only: never checkout scripts/, schemas/ or workflows from the PR
+          git checkout FETCH_HEAD -- pieces || true
+          git checkout FETCH_HEAD -- reviews || true
+
+      - name: Validate (add-only + content rules)
+        run: python scripts/validate_piece.py --diff /tmp/diff.txt
+
+      - name: Summary (manual merge path)
+        if: always()
+        run: |
+          {
+            echo '## ✅ الفحص تلقائي — الدمج يدوي من المالك (OD1)'
+            echo ''
+            echo 'هذا الـ PR فُحص بـ `scripts/validate_piece.py --diff` في وضع add-only (ملفات `pieces/**` و`reviews/**` فقط من الـ PR، والكود من `main`).'
+            echo 'لا يوجد دمج تلقائي: المالك يراجع ويدمج يدوياً. بعد الدمج يشغَّل job `build-and-sync` على `main`.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # push(main) job: validate -> build catalog -> commit [hub-sync] -> sync.
+  # Loop breakers: skip when actor is the bot or HEAD message starts [hub-sync].
+  # ---------------------------------------------------------------------------
+  build-and-sync:
+    if: github.event_name != 'pull_request' && github.actor != 'github-actions[bot]' && !startsWith(github.event.head_commit.message || '', '[hub-sync]')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: sync-main
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    env:
+      HUB_URL: ${{ vars.HUB_URL || secrets.HUB_URL }}
+      HUB_SYNC_TOKEN: ${{ secrets.HUB_SYNC_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate repository
+        run: python scripts/validate_piece.py
+
+      - name: Build catalog
+        run: python scripts/build_catalog.py --out-md CATALOG.md --out-html docs/index.html
+
+      - name: Configure git identity
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Commit catalog if changed
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain CATALOG.md docs/)" ]; then
+            git add CATALOG.md docs/
+            git commit -m '[hub-sync] rebuild catalog'
+            # A human push to main between checkout and push makes a plain `git push`
+            # non-fast-forward -> job fails -> pages.yml never deploys. Rebase + retry.
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push attempt $i failed, retrying..."; sleep $((i*5))
+              [ "$i" = 3 ] && exit 1
+            done
+          else
+            echo 'catalog unchanged'
+          fi
+
+      - name: Sync new github-origin pieces to the Sheet
+        if: env.HUB_URL != '' && env.HUB_SYNC_TOKEN != ''
+        # token is read from env inside the script and sent in the POST body only;
+        # it is never placed in a URL and never echoed.
+        run: python scripts/sync_to_sheet.py --state docs/.synced_ids.json
+
+      - name: Commit synced ids if changed
+        if: env.HUB_URL != '' && env.HUB_SYNC_TOKEN != ''
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain docs/.synced_ids.json)" ]; then
+            git add docs/.synced_ids.json
+            git commit -m '[hub-sync] synced ids'
+            # Same non-fast-forward guard as the catalog commit above.
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && break
+              echo "push attempt $i failed, retrying..."; sleep $((i*5))
+              [ "$i" = 3 ] && exit 1
+            done
+          else
+            echo 'synced ids unchanged'
+          fi
+
+      - name: Sync skipped (secrets not configured)
+        if: env.HUB_URL == '' || env.HUB_SYNC_TOKEN == ''
+        run: echo 'SKIPPED sync: secrets not configured (HUB_URL / HUB_SYNC_TOKEN)'
