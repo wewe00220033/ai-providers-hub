@@ -143,4 +143,5 @@ jobs:
 
       - name: Sync skipped (secrets not configured)
         if: env.HUB_URL == '' || env.HUB_SYNC_TOKEN == ''
-        run: echo 'SKIPPED sync: secrets not configured (HUB_URL / HUB_SYNC_TOKEN)'
+        run: |
+          echo 'SKIPPED sync - secrets not configured (HUB_URL / HUB_SYNC_TOKEN)'
