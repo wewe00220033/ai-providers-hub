@@ -23,3 +23,19 @@
   - `newer_than:20m` في Gmail تعني **20 شهراً** لا 20 دقيقة؛ البديل الدقيق هو `after:<unix_epoch_sec>`.
   - عدم تصديق اختبارات التكامل مع محاكي فارغ: التأكيد العددي الصريح `assert.equal(Object.keys(pushedFiles).length, 20)` ضروري قبل تشغيل `validate_piece.py`.
   - في ملفات `.cmd` بـ Windows، تداخل `if defined A if defined B (...) else (...)` يربط `else` بالشرط الداخلي فقط؛ استخدم `goto`.
+
+
+## 3. الرفع الحي على GitHub وإصلاح خللين في GitHub Actions (`validate-and-sync.yml` + `pages.yml`)
+- **المشكلة / السياق:**
+  1. بعد تهيئة مستودع `wewe00220033/ai-providers-hub` وإزالة `.github/workflows/static.yml` الافتراضي، فشل التشغيل الأول لـ `validate-and-sync.yml` قبل تشغيل أي Job (`Invalid workflow file: #L146`).
+  2. وبعد إصلاح السطر 146، فشل تشغيل `pages.yml` (`#2`) عبر `workflow_run` في خطوة `Deploy to GitHub Pages` بعد 320ms فقط من الرفع (`No artifacts named "github-pages" were found`).
+- **ما تم:**
+  - `.github/workflows/validate-and-sync.yml:146`: تحويل السطر `run: echo 'SKIPPED sync: ...'` إلى كتلة متعددة الأسطر `run: |` وتجنّب `: ` داخل scalar YAML غير مقتبس.
+  - `.github/workflows/pages.yml:49-53`: الترقية من `actions/deploy-pages@v4` إلى `actions/deploy-pages@v5` وإضافة `sleep 3` لفهرسة artifact الصفحات قبل النشر.
+  - تهيئة الريبو المحلي ورفع الفرعين **`main`** (الإنتاج + البيانات + الأتمتة + الذاكرة + الكود) و**`scripts`** (مرجع التطوير، مع إبقاء نفس السجل لتجنب تعارض حذف البيانات عند `git merge`) دون حفظ أي توكن في `.git/config`.
+- **التحقق الحي:**
+  - تشغيل `run_tests.cmd unit` بنجاح (`RC=0`).
+  - على commit `c0c949a`: نجح `validate-and-sync` (`#4`, `conclusion=success`) ونجح `pages` (`#3`, `conclusion=success`) وفتح الرابط الحي `https://wewe00220033.github.io/ai-providers-hub/` بـ `HTTP 200` وعنوان `📚 كتالوج مزودي الموديلات`.
+- **الدروس:**
+  - أي تعبير `word: space` داخل سطر `run: ...` في YAML بدون علامات تنصيص خارجية أو `|` يُكسر على GitHub Parser.
+  - الرفع السريع عبر `upload-pages-artifact@v3` ثم الاستعلام الفوري من `deploy-pages@v4` قد يصطدم بفارق فهرسة أجزاء من الثانية؛ استخدام `deploy-pages@v5` + مهلة قصيرة `3s` عالج السباق تماماً.
